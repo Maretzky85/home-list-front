@@ -1,0 +1,31 @@
+<!--<ng-container *ngIf="tasksList.selectedOptions.selected.length === tasks.length else completed" >-->
+
+<mat-selection-list #tasksList
+                    [ngStyle]="{'display':
+                    visible ? 'block' : 'none'}">
+  <ng-container>
+    <mat-list-option *ngFor="let task of (dailies$ | async)" [value]="task.task">
+      <mat-list-item (click)="onChange($event, task.id)">
+        <mat-icon (click)="editTask(task)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>
+        <mat-icon (click)="deleteTask($event, task.id)" aria-hidden="false" aria-label="Example home icon">delete</mat-icon>
+        {{ task.task }}
+      </mat-list-item>
+
+    </mat-list-option>
+    <!--  <button class="mat-button" mat-list-item (click)="click()"> {{ task.task }} </button>-->
+  </ng-container>
+</mat-selection-list>
+
+<!--<p *ngIf="tasksList.selectedOptions.selected.length !== tasks.length">-->
+<!--  Options selected : {{ tasksList.selectedOptions.selected.length }}-->
+<!--  {{ tasksList.selectedOptions.selected.length === tasks.length }}-->
+<!--</p>-->
+
+<div *ngIf="!visible" class="prompt">
+  <div>
+    <h1>Have a nice day</h1>
+  </div>
+  <div>
+    <button mat-fab color="primary" (click)="setVisible()"> reset</button>
+  </div>
+</div>

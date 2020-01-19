@@ -1,0 +1,10 @@
+<mat-card class="mat-elevation-z2 user">
+  <mat-card-title class="center">
+    {{ user.name }}
+  </mat-card-title>
+  <mat-card-content>
+    <app-task [userId]="user.id"></app-task>
+  </mat-card-content>
+  <button mat-fab (click)="this.add=!this.add">Add</button>
+  <input *ngIf="this.add" [(ngModel)]="daily.task" matInput placeholder="Item" (keypress)="buttonHandler($event)">
+</mat-card>
