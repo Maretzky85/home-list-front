@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { User } from '../models/user';
 import { Daily } from '../models/daily';
 import { map } from 'rxjs/operators';
+import {DistanceCall} from '../models/distanceCall';
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +50,14 @@ export class DataService {
 
   editDaily(daily: Daily) {
     return this.http.put(environment.backend + `daily/` + daily.id, daily);
+  }
+
+  getTimeToTarget(adress: string): Observable<number> {
+    console.log('calling distance call');
+    const distance: DistanceCall = {
+      origins: ['Łomianki, równoległa 1'],
+      destinations: [adress]
+    };
+    return this.http.post<number>(environment.backend + 'distance', distance);
   }
 }

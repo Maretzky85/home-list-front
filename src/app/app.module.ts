@@ -27,7 +27,7 @@ import {LoggerModule, NgxLoggerLevel} from 'ngx-logger';
     DailyComponent,
     TaskComponent,
     UserComponent,
-    DialogForTaskComponent
+    DialogForTaskComponent,
   ],
     imports: [
         BrowserModule,

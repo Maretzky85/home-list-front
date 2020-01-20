@@ -4,6 +4,7 @@ import {BehaviorSubject} from 'rxjs';
 import {DataService} from '../../../services/data.service';
 import {NGXLogger} from 'ngx-logger';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
+import {map, tap} from 'rxjs/operators';
 
 export interface DialogData {
   task: string;
@@ -25,6 +26,9 @@ export class TaskComponent implements OnInit {
   selectedValues: number[] = [];
 
   visible = true;
+
+  timeToTarget$;
+  arrivalTime$: BehaviorSubject<Date> = new BehaviorSubject<Date>(null);
 
   constructor(private dataService: DataService,
               private logger: NGXLogger,
@@ -69,7 +73,7 @@ export class TaskComponent implements OnInit {
         value => {
           this.selectedValues = [];
           this.length = value.length;
-          this.dailies$.next(value.sort( (a, b) => a.id > b.id ? 1 : -1 ));
+          this.dailies$.next(value.sort((a, b) => a.id > b.id ? 1 : -1));
         },
         error => this.logger.error(`Error downloading dailies`, error)
       );
@@ -77,6 +81,7 @@ export class TaskComponent implements OnInit {
 
   ngOnInit() {
     this.downloadData();
+    this.timeToTarget$ = this.getTimeToTarget();
   }
 
   editTask(daily: Daily) {
@@ -86,11 +91,24 @@ export class TaskComponent implements OnInit {
       }
       this.dataService.editDaily({id: daily.id, task: result, userId: this.userId})
         .subscribe(value => {
-          this.logger.info(`Updated task: id: ${daily.id}, task: ${result}`);
-          this.downloadData();
-        },
+            this.logger.info(`Updated task: id: ${daily.id}, task: ${result}`);
+            this.downloadData();
+          },
           error => this.logger.error('Error updating daily', error));
     });
+  }
+
+  getTimeToTarget() {
+    return this.dataService.getTimeToTarget('Warszawa, kasprowicza 107').pipe(
+      map(value => Math.floor(value / 60))
+    ).pipe(
+      tap(x => {
+          const date = new Date(Date.now());
+          date.setMinutes(date.getMinutes() + x);
+          this.arrivalTime$.next(date);
+        }
+      )
+    );
   }
 
   openDialog(task: string) {
