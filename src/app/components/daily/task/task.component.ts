@@ -27,6 +27,8 @@ export class TaskComponent implements OnInit, AfterViewInit {
 
   visible = false;
 
+  timeToTarget$: Observable<number>;
+
   arrivalTime$: BehaviorSubject<Date> = new BehaviorSubject<Date>(null);
 
   constructor(private dataService: DataService,
@@ -114,6 +116,7 @@ export class TaskComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.matSelectionList.registerOnChange( (items) => {
       if (items.length === this.dailies$.getValue().length) {
+        this.timeToTarget$ = this.getTimeToTarget();
         this.visible = false;
       }
     } );

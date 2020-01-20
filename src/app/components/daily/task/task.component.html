@@ -16,8 +16,8 @@
 <div *ngIf="!visible" class="prompt">
   <div>
     <h1>Have a nice day</h1>
-    <h2>Time to reach target: {{ getTimeToTarget() | async }} min</h2>
-    <h2>Arrival time: {{ (getTimeToTarget() | async) | date:'shortTime' }}</h2>
+    <h2>Time to reach target: {{ timeToTarget$  | async }} min</h2>
+    <h2>Arrival time: {{ (arrivalTime$ | async) | date:'shortTime' }}</h2>
   </div>
   <div>
     <button mat-fab color="primary" (click)="resetTasks()"> reset</button>
