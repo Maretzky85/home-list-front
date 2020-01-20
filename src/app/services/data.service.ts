@@ -1,11 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { UserDto } from '../models/userDto';
-import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { User } from '../models/user';
-import { Daily } from '../models/daily';
-import { map } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {User} from '../models/user';
+import {Daily} from '../models/daily';
 import {DistanceCall} from '../models/distanceCall';
 
 @Injectable({
@@ -13,47 +11,31 @@ import {DistanceCall} from '../models/distanceCall';
 })
 export class DataService {
 
-  constructor(private http: HttpClient) { }
-
-  data$: Observable<UserDto[]>;
-
-  downloadData(): void {
-    const users: Observable<User[]> = this.http.get<User[]>(environment.backend + 'users');
-    const daily: Observable<Daily[]> = this.http.get<Daily[]>(environment.backend + 'daily');
-    this.data$ = forkJoin(users, daily).pipe(
-      map( ([usersList, dailyList]) => {
-        return usersList.map( (user: User) => {
-          return {
-            user,
-            tasks: dailyList.filter( (task) => task.userId === user.id)
-          } as UserDto;
-        } );
-      } )
-    );
+  constructor(private http: HttpClient) {
   }
 
-  getUsers() {
+  getUsers(): Observable<User[]> {
     return this.http.get<User[]>(environment.backend + 'users/');
   }
 
-  getDailyForUser(id: number) {
+  getDailyForUser(id: number): Observable<Daily[]> {
     return this.http.get<Daily[]>(environment.backend + 'users/' + id + '/daily');
   }
 
-  deleteDaily(id: number) {
+  deleteDaily(id: number): Observable<any> {
     return this.http.delete(environment.backend + 'daily/' + id);
   }
 
-  addDaily(daily: Daily) {
-    return this.http.post(environment.backend + 'daily', daily );
+  addDaily(daily: Daily): Observable<any> {
+    return this.http.post(environment.backend + 'daily', daily);
   }
 
-  editDaily(daily: Daily) {
+  editDaily(daily: Daily): Observable<any> {
     return this.http.put(environment.backend + `daily/` + daily.id, daily);
   }
 
   getTimeToTarget(adress: string): Observable<number> {
-    console.log('calling distance call');
+    // Get time to target in minutes
     const distance: DistanceCall = {
       origins: ['Łomianki, równoległa 1'],
       destinations: [adress]

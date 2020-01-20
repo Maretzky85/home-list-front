@@ -5,6 +5,7 @@ import {DataService} from '../../../services/data.service';
 import {NGXLogger} from 'ngx-logger';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSelectionList} from '@angular/material';
 import {map, tap} from 'rxjs/operators';
+import { isEqual, difference } from 'lodash';
 
 export interface DialogData {
   task: string;
@@ -22,11 +23,9 @@ export class TaskComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSelectionList, {static: false})
   matSelectionList: MatSelectionList;
 
-  dailies$: BehaviorSubject<Daily[]> = new BehaviorSubject<Daily[]>(null);
+  dailies$: BehaviorSubject<Daily[]> = new BehaviorSubject<Daily[]>([]);
 
   visible = false;
-
-  timeToTarget$: Observable<any>;
 
   arrivalTime$: BehaviorSubject<Date> = new BehaviorSubject<Date>(null);
 
@@ -39,7 +38,7 @@ export class TaskComponent implements OnInit, AfterViewInit {
     this.logger.info(`Deleting task of id: ${id}`);
     this.dataService.deleteDaily(id).subscribe(
       source => {
-        this.downloadData();
+        this.getDailies();
       }, error => {
         this.logger.error('Error deleting task', error);
       }
@@ -51,20 +50,26 @@ export class TaskComponent implements OnInit, AfterViewInit {
     this.matSelectionList.selectedOptions.clear();
   }
 
-  downloadData() {
+  getDailies() {
     this.dataService.getDailyForUser(this.userId)
       .subscribe(
         value => {
-          this.resetTasks();
-          this.dailies$.next(value.sort((a, b) => a.id > b.id ? 1 : -1));
+          if (!isEqual(value.sort(), this.dailies$.getValue())) {
+            this.resetTasks();
+            this.dailies$.next(value.sort());
+            this.logger.info(`Task for user ${this.userId} updated`);
+          }
         },
         error => this.logger.error(`Error downloading dailies`, error)
       );
   }
 
   ngOnInit() {
-    this.downloadData();
-    this.timeToTarget$ = this.getTimeToTarget();
+    this.getDailies();
+    setInterval( () => {
+      this.logger.debug('Daily change check');
+      this.getDailies();
+    }, 30000 );
   }
 
   editTask(daily: Daily) {
@@ -75,7 +80,7 @@ export class TaskComponent implements OnInit, AfterViewInit {
       this.dataService.editDaily({id: daily.id, task: result, userId: this.userId})
         .subscribe(value => {
             this.logger.info(`Updated task: id: ${daily.id}, task: ${result}`);
-            this.downloadData();
+            this.getDailies();
           },
           error => this.logger.error('Error updating daily', error));
     });

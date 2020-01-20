@@ -31,7 +31,7 @@ export class UserComponent implements OnInit {
       this.dataService.addDaily(this.daily)
         .subscribe(
         value => {
-          this.child.downloadData();
+          this.child.getDailies();
         }, error => this.logger.error(`error downloading data`, error)
       );
     }
