@@ -1,9 +1,9 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Inject, Input, OnInit, ViewChild} from '@angular/core';
 import {Daily} from '../../../models/daily';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {DataService} from '../../../services/data.service';
 import {NGXLogger} from 'ngx-logger';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSelectionList} from '@angular/material';
 import {map, tap} from 'rxjs/operators';
 
 export interface DialogData {
@@ -15,19 +15,19 @@ export interface DialogData {
   templateUrl: './task.component.html',
   styleUrls: ['./task.component.scss']
 })
-export class TaskComponent implements OnInit {
+export class TaskComponent implements OnInit, AfterViewInit {
 
   @Input() userId: number;
 
+  @ViewChild(MatSelectionList, {static: false})
+  matSelectionList: MatSelectionList;
+
   dailies$: BehaviorSubject<Daily[]> = new BehaviorSubject<Daily[]>(null);
 
-  length: number;
+  visible = false;
 
-  selectedValues: number[] = [];
+  timeToTarget$: Observable<any>;
 
-  visible = true;
-
-  timeToTarget$;
   arrivalTime$: BehaviorSubject<Date> = new BehaviorSubject<Date>(null);
 
   constructor(private dataService: DataService,
@@ -35,24 +35,7 @@ export class TaskComponent implements OnInit {
               public dialog: MatDialog) {
   }
 
-  onChange(event, id: number) {
-    const targetClassList = event.target.parentElement.classList;
-    if (targetClassList.contains('checked')) {
-      targetClassList.remove('checked');
-    } else {
-      targetClassList.add('checked');
-    }
-    if (this.selectedValues.includes(id)) {
-      this.selectedValues.splice(this.selectedValues.indexOf(id), 1);
-    } else {
-      this.selectedValues.push(id);
-    }
-    if (this.selectedValues.length === this.length) {
-      this.visible = false;
-    }
-  }
-
-  deleteTask(event, id: number) {
+  deleteTask(id: number) {
     this.logger.info(`Deleting task of id: ${id}`);
     this.dataService.deleteDaily(id).subscribe(
       source => {
@@ -63,16 +46,16 @@ export class TaskComponent implements OnInit {
     );
   }
 
-  setVisible() {
+  resetTasks() {
     this.visible = true;
+    this.matSelectionList.selectedOptions.clear();
   }
 
   downloadData() {
     this.dataService.getDailyForUser(this.userId)
       .subscribe(
         value => {
-          this.selectedValues = [];
-          this.length = value.length;
+          this.resetTasks();
           this.dailies$.next(value.sort((a, b) => a.id > b.id ? 1 : -1));
         },
         error => this.logger.error(`Error downloading dailies`, error)
@@ -117,6 +100,18 @@ export class TaskComponent implements OnInit {
       data: {task}
     });
     return dialogRef.afterClosed();
+  }
+
+  checkSelected(task: string) {
+    return this.matSelectionList.selectedOptions.selected.map( value => value.value ).includes(task);
+  }
+
+  ngAfterViewInit(): void {
+    this.matSelectionList.registerOnChange( (items) => {
+      if (items.length === this.dailies$.getValue().length) {
+        this.visible = false;
+      }
+    } );
   }
 }
 

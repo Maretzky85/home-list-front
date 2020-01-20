@@ -10,7 +10,6 @@ import { MatCardModule } from '@angular/material/card';
 import {
   MatButtonModule,
   MatDialogModule,
-  MatFormFieldModule,
   MatGridListModule,
   MatIconModule,
   MatInputModule,
@@ -40,7 +39,6 @@ import {LoggerModule, NgxLoggerLevel} from 'ngx-logger';
         MatListModule,
         MatGridListModule,
         MatButtonModule,
-        MatFormFieldModule,
         FormsModule,
         MatInputModule,
         MatIconModule

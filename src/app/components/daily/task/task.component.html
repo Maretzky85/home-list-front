@@ -5,9 +5,9 @@
                     visible ? 'block' : 'none'}">
   <ng-container>
     <mat-list-option *ngFor="let task of (dailies$ | async)" [value]="task.task">
-      <mat-list-item (click)="onChange($event, task.id)">
+      <mat-list-item [class.checked]="checkSelected(task.task)">
         <mat-icon (click)="editTask(task)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>
-        <mat-icon (click)="deleteTask($event, task.id)" aria-hidden="false" aria-label="Example home icon">delete</mat-icon>
+        <mat-icon (click)="deleteTask(task.id)" aria-hidden="false" aria-label="Example home icon">delete</mat-icon>
         {{ task.task }}
       </mat-list-item>
 
@@ -29,6 +29,6 @@
     <h2>Arrival time: {{ (arrivalTime$ | async) | date:'shortTime' }}</h2>
   </div>
   <div>
-    <button mat-fab color="primary" (click)="setVisible()"> reset</button>
+    <button mat-fab color="primary" (click)="resetTasks()"> reset</button>
   </div>
 </div>
