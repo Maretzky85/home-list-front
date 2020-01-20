@@ -19,6 +19,7 @@ import {DialogForTaskComponent, TaskComponent} from './components/daily/task/tas
 import { UserComponent } from './components/daily/user/user.component';
 import {FormsModule} from '@angular/forms';
 import {LoggerModule, NgxLoggerLevel} from 'ngx-logger';
+import {environment} from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,7 @@ import {LoggerModule, NgxLoggerLevel} from 'ngx-logger';
         AppRoutingModule,
         HttpClientModule,
         BrowserAnimationsModule,
-        LoggerModule.forRoot({serverLoggingUrl: '/api/logs', level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.OFF}),
+        LoggerModule.forRoot({serverLoggingUrl: '/api/logs', level: environment.debugLevel, serverLogLevel: NgxLoggerLevel.OFF}),
         MatDialogModule,
         MatCardModule,
         MatListModule,
